@@ -2,7 +2,11 @@
 /dist
 /node_modules
 /build
-/uploads
+/uploads/documents/*
+/uploads/images/*
+/uploads/videos/*   
+/uploads/audios/*
+/uploads/other/*
 /test
 
 # Logs
