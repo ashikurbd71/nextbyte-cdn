@@ -1,0 +1,41 @@
+version: 40
+jobs:
+- name: CI/CD
+  jobExecutor: Shell
+  steps:
+  - !CommandStep
+    name: deploy
+    runInContainer: false
+    interpreter: !DefaultInterpreter
+      commands: |
+        #!/bin/bash
+        set -e
+
+        # Change to the project directory
+        cd /home/ashikurovi/appdata/sites/cdn.nextbyteitinstitute.com/
+
+        # Take ownership of the files to prevent permission errors
+        echo "Taking ownership of repository files..."
+        chown -R $(id -u):$(id -g) .
+
+        # Pull the latest code using the provided Git token
+        echo "Pulling latest changes from the repository..."
+        git pull https://ashikurovi:@secret:GIT_TOKEN@@@onedev.farhansadiq.dev/Next-Byte-Institute/cdn.nextbyteitinstitute.com
+
+        echo “Copying env”
+        cp .env.example .env
+        # Rebuild and restart the Docker containers
+        echo "Building and deploying Docker containers..."
+        docker compose up -d --build
+
+        echo "Deployment finished successfully!"
+    useTTY: true
+    condition: SUCCESSFUL
+    optional: false
+  triggers:
+  - !BranchUpdateTrigger
+    projects: Next-Byte-Institute/cdn.nextbyteitinstitute.com
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  timeout: 14400
