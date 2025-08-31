@@ -35,8 +35,8 @@ RUN corepack enable pnpm
 RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 appuser --ingroup appgroup
 
-# Give the new user ownership of the app directory
-RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app
+# CORRECTED LINE
+RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app
 
 
 # Switch to the non-root user
