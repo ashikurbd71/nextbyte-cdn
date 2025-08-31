@@ -57,7 +57,7 @@ EXPOSE 8000
 # Health check to ensure the application is running correctly
 # Note: Update '/api/health' to your actual health check endpoint.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://127.0.0.1:8000/api/health', {timeout: 2000}, (res) => res.statusCode === 200 ? process.exit(0) : process.exit(1)).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://127.0.0.1:8000/api/ini_health', {timeout: 2000}, (res) => res.statusCode === 200 ? process.exit(0) : process.exit(1)).on('error', () => process.exit(1))"
 
 # The command to start the application
 CMD node dist/main.js
