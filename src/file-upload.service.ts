@@ -16,7 +16,7 @@ export interface FileInfo {
 @Injectable()
 export class FileUploadService {
     private readonly uploadDir = 'uploads';
-    private readonly baseUrl = process.env.BASE_URL || 'http://localhost:8000';
+    private readonly baseUrl = 'https://cdn.nextbyteitinstitute.com';
     private readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     private readonly allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
     private readonly allowedFileTypes = [
