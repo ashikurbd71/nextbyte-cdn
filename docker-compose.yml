@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   cdn-server:
     build: .
     image: nextbyte-cdn
-    container_name: "nextbyte-cdn-server"
+    container_name: 'nextbyte-cdn-server'
     restart: always
     env_file:
       - ./.env
@@ -14,19 +12,19 @@ services:
       - proxy
     labels:
       # --- Traefik Configuration ---
-      - "traefik.enable=true"
+      - 'traefik.enable=true'
       # Rule to route traffic for the specified host
-      - "traefik.http.routers.cdn-server.rule=Host(`cdn.nextbyteitinstitute.com`)"
-      - "traefik.http.routers.cdn-server.priority=10"
+      - 'traefik.http.routers.cdn-server.rule=Host(`cdn.nextbyteitinstitute.com`)'
+      - 'traefik.http.routers.cdn-server.priority=10'
       # Use the 'websecure' entrypoint (typically for HTTPS)
-      - "traefik.http.routers.cdn-server.entrypoints=websecure"
+      - 'traefik.http.routers.cdn-server.entrypoints=websecure'
       # Enable TLS and specify the Let's Encrypt resolver
-      - "traefik.http.routers.cdn-server.tls.certresolver=leresolver"
-      - "traefik.http.routers.cdn-server.tls=true"
+      - 'traefik.http.routers.cdn-server.tls.certresolver=leresolver'
+      - 'traefik.http.routers.cdn-server.tls=true'
       # Link the router to the service definition below
-      - "traefik.http.routers.cdn-server.service=cdn-server"
+      - 'traefik.http.routers.cdn-server.service=cdn-server'
       # Tell Traefik which port the application is running on inside the container
-      - "traefik.http.services.cdn-server.loadbalancer.server.port=8000"
+      - 'traefik.http.services.cdn-server.loadbalancer.server.port=8000'
 
 # Defines the external network created by Traefik
 networks:
