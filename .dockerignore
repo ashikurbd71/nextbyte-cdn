@@ -8,7 +8,6 @@ Dockerfile
 node_modules
 
 # Build output - This is generated inside the container
-dist
 build
 coverage
 docs
