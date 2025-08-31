@@ -23,6 +23,7 @@ RUN pnpm run build
 # This is the final, lean, and secure image for production.
 FROM node:24-alpine AS runtime
 
+
 # Set the environment to production
 ENV NODE_ENV=production
 WORKDIR /app
@@ -35,7 +36,8 @@ RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 appuser --ingroup appgroup
 
 # Give the new user ownership of the app directory
-RUN chown -R appuser:appgroup /app
+RUN mkdir -p /app/uploads && chown -R appuser:appgroup /app
+
 
 # Switch to the non-root user
 USER appuser
