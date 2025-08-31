@@ -6,22 +6,44 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: true, // Allow all origins in development
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Hardcoded allowed origins
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://nextbyteitinstitute.com',
+        'https://www.nextbyteitinstitute.com',
+        'https://admin.nextbyteitinstitute.com',
+
+      ];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // Allow the request
+      } else {
+        console.error(`CORS policy blocked request from: ${origin}`); // Log blocked origins for debugging
+        callback(new Error('Not allowed by CORS')); // Deny the request
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
+    credentials: true, // Allow sending cookies
   });
 
-  const port = process.env.PORT || 8000;
-  const baseUrl = process.env.BASE_URL || `http://localhost:${port}`;
+  const port = 8000;
+
 
   // Set global prefix for the application
   app.setGlobalPrefix('api');
 
   await app.listen(port);
 
-  console.log(`🚀 CDN Server is running on: ${baseUrl}`);
-  console.log(`📁 File upload endpoint: ${baseUrl}/api/cdn/upload`);
-  console.log(`📂 Files served at: ${baseUrl}/api/cdn/files/`);
-  console.log(`📋 File info endpoint: ${baseUrl}/api/cdn/info/`);
+  // Add a raw route using the underlying HTTP adapter
+  const httpAdapter = app.getHttpAdapter();
+  httpAdapter.get('/ini_health', (req, res) => {
+    res.status(200).json({
+      status: 'healthy', // Simple health indicator
+      timestamp: new Date().toISOString(), // Current server time
+      uptime: process.uptime(), // Process uptime in seconds
+    });
+  });
+
 }
 bootstrap();

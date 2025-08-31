@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { FileUploadController } from './file-upload.controller';
 import { FileUploadService } from './file-upload.service';
 
+
 @Module({
   imports: [
     // Serve static files from uploads directory with subdirectory support
@@ -38,6 +39,7 @@ import { FileUploadService } from './file-upload.service';
         },
       },
     }),
+
   ],
   controllers: [AppController, FileUploadController],
   providers: [AppService, FileUploadService],

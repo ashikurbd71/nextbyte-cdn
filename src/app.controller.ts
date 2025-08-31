@@ -29,4 +29,18 @@ export class AppController {
       maxFilesPerUpload: 10
     };
   }
+
+  @Get('ini_health')
+  getHealth(): object {
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development'
+    };
+  }
+
+
+
+
 }
