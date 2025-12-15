@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const file_upload_service_1 = require("./file-upload.service");
 const fs = require("fs");
-const path = require("path");
 let FileUploadController = class FileUploadController {
     fileUploadService;
     constructor(fileUploadService) {
@@ -79,13 +78,15 @@ let FileUploadController = class FileUploadController {
             if (fileInfo.folder !== category) {
                 throw new common_1.NotFoundException('File not found in specified category');
             }
-            const filePath = path.join(process.cwd(), 'uploads', fileInfo.folder, filename);
+            const filePath = this.fileUploadService.getAbsoluteFilePath(fileInfo.folder, filename);
             if (!fs.existsSync(filePath)) {
                 throw new common_1.NotFoundException('File not found on disk');
             }
-            res.setHeader('Content-Type', fileInfo.mimetype);
-            res.setHeader('Content-Disposition', `inline; filename="${fileInfo.originalName}"`);
-            res.setHeader('Cache-Control', 'public, max-age=31536000');
+            res.set({
+                'Content-Type': fileInfo.mimetype,
+                'Content-Disposition': `inline; filename="${fileInfo.originalName}"`,
+                'Cache-Control': 'public, max-age=31536000'
+            });
             const fileStream = fs.createReadStream(filePath);
             fileStream.pipe(res);
         }

@@ -15,7 +15,7 @@ import {
     HttpCode
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { Response as ExpressResponse } from 'express';
 import { FileUploadService, FileInfo } from './file-upload.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -76,7 +76,11 @@ export class FileUploadController {
 
 
     @Get('files/:category/:filename')
-    async serveFile(@Param('category') category: string, @Param('filename') filename: string, @Res() res: Response) {
+    async serveFile(
+        @Param('category') category: string,
+        @Param('filename') filename: string,
+        @Res() res: ExpressResponse
+    ) {
         try {
             if (!filename || filename.trim() === '') {
                 throw new BadRequestException('Filename is required');
@@ -97,20 +101,23 @@ export class FileUploadController {
                 throw new NotFoundException('File not found in specified category');
             }
 
-            const filePath = path.join(process.cwd(), 'uploads', fileInfo.folder, filename);
+            // Resolve the absolute path using the upload service so it stays consistent
+            const filePath = this.fileUploadService.getAbsoluteFilePath(fileInfo.folder, filename);
 
             if (!fs.existsSync(filePath)) {
                 throw new NotFoundException('File not found on disk');
             }
 
             // Set appropriate headers
-            res.setHeader('Content-Type', fileInfo.mimetype);
-            res.setHeader('Content-Disposition', `inline; filename="${fileInfo.originalName}"`);
-            res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
+            res.set({
+                'Content-Type': fileInfo.mimetype,
+                'Content-Disposition': `inline; filename="${fileInfo.originalName}"`,
+                'Cache-Control': 'public, max-age=31536000' // 1 year cache
+            });
 
             // Stream the file
             const fileStream = fs.createReadStream(filePath);
-            fileStream.pipe(res);
+            fileStream.pipe(res as any);
         } catch (error) {
             if (error instanceof NotFoundException || error instanceof BadRequestException) {
                 throw error;

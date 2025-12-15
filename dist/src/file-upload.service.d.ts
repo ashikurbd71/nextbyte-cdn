@@ -15,6 +15,7 @@ export declare class FileUploadService {
     private readonly allowedFileTypes;
     constructor();
     private ensureUploadDirectory;
+    getAbsoluteFilePath(folder: string, filename: string): string;
     private getFileCategory;
     private validateFile;
     private generateFilename;

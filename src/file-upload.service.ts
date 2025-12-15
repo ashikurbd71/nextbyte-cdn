@@ -15,7 +15,10 @@ export interface FileInfo {
 
 @Injectable()
 export class FileUploadService {
-    private readonly uploadDir = 'uploads';
+    // Use a writable directory in serverless (Vercel) environments, fall back to project-root "uploads" locally
+    private readonly uploadDir =
+        process.env.UPLOAD_DIR ||
+        (process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(process.cwd(), 'uploads'));
     private readonly baseUrl = 'https://cdn.nextbyteitinstitute.com';
     private readonly allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     private readonly allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
@@ -47,6 +50,13 @@ export class FileUploadService {
                 fs.mkdirSync(dirPath, { recursive: true });
             }
         });
+    }
+
+    /**
+     * Returns the absolute path on disk for a stored file.
+     */
+    getAbsoluteFilePath(folder: string, filename: string): string {
+        return path.join(this.uploadDir, folder, filename);
     }
 
     private getFileCategory(mimetype: string): string {

@@ -15,8 +15,9 @@ const uuid_1 = require("uuid");
 const fs = require("fs");
 const path = require("path");
 let FileUploadService = class FileUploadService {
-    uploadDir = 'uploads';
-    baseUrl = process.env.BASE_URL || 'http://localhost:8000';
+    uploadDir = process.env.UPLOAD_DIR ||
+        (process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(process.cwd(), 'uploads'));
+    baseUrl = 'https://cdn.nextbyteitinstitute.com';
     allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mov', 'video/wmv', 'video/flv'];
     allowedFileTypes = [
@@ -43,6 +44,9 @@ let FileUploadService = class FileUploadService {
                 fs.mkdirSync(dirPath, { recursive: true });
             }
         });
+    }
+    getAbsoluteFilePath(folder, filename) {
+        return path.join(this.uploadDir, folder, filename);
     }
     getFileCategory(mimetype) {
         if (this.allowedImageTypes.includes(mimetype)) {

@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Response as ExpressResponse } from 'express';
 import { FileUploadService, FileInfo } from './file-upload.service';
 export declare class FileUploadController {
     private readonly fileUploadService;
@@ -13,7 +13,7 @@ export declare class FileUploadController {
         message: string;
         data: FileInfo[];
     }>;
-    serveFile(category: string, filename: string, res: Response): Promise<void>;
+    serveFile(category: string, filename: string, res: ExpressResponse): Promise<void>;
     listFiles(category?: string): Promise<{
         success: boolean;
         message: string;
