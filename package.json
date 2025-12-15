@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "docker:buildx": "docker buildx build --platform linux/amd64 --push --compress -t codehub.farhansadiq.dev/next-byte-institute/nextbyte-cdn:latest .",
+    "docker:buildx:force": "docker buildx build --platform linux/amd64 --push --no-cache --pull --compress -t codehub.farhansadiq.dev/next-byte-institute/nextbyte-cdn:latest .",
+    "build:docker": "npm run docker:buildx",
+    "build:docker:force": "npm run docker:buildx:force"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -26,6 +30,7 @@
     "@nestjs/platform-express": "^11.1.6",
     "@nestjs/serve-static": "^5.0.3",
     "@types/uuid": "^10.0.0",
+    "@vercel/node": "^5.5.15",
     "multer": "^2.0.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

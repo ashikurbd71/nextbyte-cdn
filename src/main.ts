@@ -1,49 +1,41 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+let cachedApp: NestExpressApplication;
 
-  // Enable CORS
-  app.enableCors({
-    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      // Hardcoded allowed origins
-      const allowedOrigins = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://nextbyteitinstitute.com',
-        'https://www.nextbyteitinstitute.com',
-        'https://admin.nextbyteitinstitute.com',
-
-      ];
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true); // Allow the request
-      } else {
-        console.error(`CORS policy blocked request from: ${origin}`); // Log blocked origins for debugging
-        callback(new Error('Not allowed by CORS')); // Deny the request
-      }
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
-    credentials: true, // Allow sending cookies
-  });
-
-  const port = 8000;
-
-
-  // Set global prefix for the application
-  app.setGlobalPrefix('api');
-
-  await app.listen(port);
-
-  // Add a raw route using the underlying HTTP adapter
-  const httpAdapter = app.getHttpAdapter();
-  httpAdapter.get('/ini_health', (req, res) => {
-    res.status(200).json({
-      status: 'healthy', // Simple health indicator
-      timestamp: new Date().toISOString(), // Current server time
-      uptime: process.uptime(), // Process uptime in seconds
+async function bootstrap(): Promise<NestExpressApplication> {
+  if (!cachedApp) {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+      logger: ['error', 'warn'],
     });
-  });
 
+    // Open CORS: allow all origins
+    app.enableCors({
+      origin: '*',
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: false, // wildcard origin হলে true রাখা যাবে না
+    });
+    // Set global prefix for the application
+    app.setGlobalPrefix('api');
+    await app.init();
+    cachedApp = app;
+  }
+  return cachedApp;
 }
-bootstrap();
+
+if (!process.env.VERCEL) {
+  async function startLocalServer() {
+    const app = await bootstrap();
+    const port = process.env.PORT || 8000;
+    await app.listen(port);
+    console.log(`🚀 Server running on http://localhost:${port}`);
+  }
+  startLocalServer();
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const app = await bootstrap();
+  app.getHttpAdapter().getInstance()(req, res);
+}

@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  nextbyte-cdn:
+    image: codehub.farhansadiq.dev/next-byte-institute/nextbyte-cdn:latest
+    env_file:
+      - .env
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+        reservations:
+          cpus: "0.125"
+          memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.nextbyte-cdn.rule=Host(`cdn.nextbyteitinstitute.com`)"
+        - "traefik.http.routers.nextbyte-cdn.priority=5"
+        - "traefik.http.routers.nextbyte-cdn.entrypoints=websecure"
+        - "traefik.http.routers.nextbyte-cdn.tls.certresolver=leresolver"
+        - "traefik.http.routers.nextbyte-cdn.tls=true"
+        - "traefik.http.routers.nextbyte-cdn.service=nextbyte-cdn"
+        - "traefik.http.services.nextbyte-cdn.loadbalancer.server.port=8000"
+        - "traefik.swarm.network=traefik_proxy"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/health', r => process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - nextbyte-cdn:/app/uploads
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: traefik_proxy
+volumes:
+  nextbyte-cdn:
