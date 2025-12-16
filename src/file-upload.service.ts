@@ -117,7 +117,7 @@ export class FileUploadService {
             filename,
             mimetype: file.mimetype,
             size: file.size,
-            url: `${this.baseUrl}/api/cdn/files/${category}/${filename}`,
+            url: `${this.baseUrl}/files/${category}/${filename}`,
             uploadedAt: new Date(),
             folder: category
         };
@@ -147,7 +147,7 @@ export class FileUploadService {
                     filename,
                     mimetype: this.getMimeType(ext),
                     size: stats.size,
-                    url: `${this.baseUrl}/api/cdn/files/${category}/${filename}`,
+                    url: `${this.baseUrl}/files/${category}/${filename}`,
                     uploadedAt: stats.birthtime,
                     folder: category
                 };

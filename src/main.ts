@@ -17,8 +17,8 @@ async function bootstrap(): Promise<NestExpressApplication> {
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       credentials: false, // wildcard origin হলে true রাখা যাবে না
     });
-    // Set global prefix for the application
-    app.setGlobalPrefix('api');
+
+
     await app.init();
     cachedApp = app;
   }
